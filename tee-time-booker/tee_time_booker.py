@@ -42,8 +42,8 @@ def getCSRFToken():
 def getTimeSheet(csrf_token):
 
     # Replace 'YOUR_USERNAME'and 'YOUR_PASSWORD'with your actual login credentials
-    username = '10773134'
-    password = '20Diesel08'
+    username = ''
+    password = ''
 
     # Perform the login and obtain the necessary authentication token or cookies
     login_url = 'https://members.brsgolf.com/belvoir/login'
