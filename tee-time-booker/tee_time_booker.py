@@ -42,8 +42,8 @@ def getCSRFToken():
 def getTimeSheet(csrf_token):
 
     # Replace 'YOUR_USERNAME'and 'YOUR_PASSWORD'with your actual login credentials
-    username = ''
-    password = ''
+    username = '10773134'
+    password = '20Diesel08'
 
     # Perform the login and obtain the necessary authentication token or cookies
     login_url = 'https://members.brsgolf.com/belvoir/login'
@@ -67,8 +67,9 @@ def getTimeSheet(csrf_token):
 
     # Check if the login was successful and retrieve the necessary authentication information
     if response.status_code == 200:
-        print('Login successful.')
-        print('..................................................')
+        print('<--- LOGIN SUCCESSFUL! --->')
+        # print('TEE TIME REFS......................')
+        # print(session.cookies)
 
     else:
         print('Login failed.')
@@ -117,6 +118,9 @@ def getDynamicHTML(date):
             }
 
         driver.add_cookie(cookies_dict[cookie.name])
+    
+    # Give time for all HTML to load, otherwise it is intermittently missed
+    driver.implicitly_wait(3)
 
     # Navigate to the webpage using Selenium
     driver.get(url)
@@ -159,7 +163,12 @@ def hrefParser(dynamic_html, tee_time_preferences):
                     anchor_tag = tr_element.find('a')
                     if anchor_tag and 'href' in anchor_tag.attrs:
                         href_value = anchor_tag['href']
-                        available_tee_times_hrefs.append(href_value)    
+                        available_tee_times_hrefs.append(href_value)
+    
+    # print('PAGE SOURCE......................')
+    # print(soup)
+    print('TEE TIME REFS......................')
+    print(available_tee_times_hrefs)
 
     return available_tee_times_hrefs
 
@@ -168,8 +177,9 @@ def bookingSlotTokens(available_tee_times_hrefs):
     tokens_array = []  # Create an empty dictionary to store the tokens
 
     for hrefs in available_tee_times_hrefs:
-        url = f'https://members.brsgolf.com{hrefs}'
 
+        tokens_array_inner = []
+        url = f'https://members.brsgolf.com{hrefs}'
         response = session.get(url)
 
         soup = BeautifulSoup(response.content, 'html.parser')
@@ -177,50 +187,59 @@ def bookingSlotTokens(available_tee_times_hrefs):
         token_2 = soup.find('input', {'name': 'member_booking_form[_token]'})['value']
     
         # Add the tokens to the array
-        tokens_array.append(token_1)
-        tokens_array.append(token_2)
+        tokens_array_inner.append(token_1)
+        tokens_array_inner.append(token_2)
+        tokens_array.append(tokens_array_inner)
+
+    print('MEMBER TOKENS......................')
+    print(tokens_array)
     
     return tokens_array
 
 
 def bookTeeTime(hrefs, tokens, player_1, player_2="", player_3="", player_4=""):
-
-    split_date_time = hrefs[0].split('/')
-    time = split_date_time[-1]
-    date = split_date_time[-2]
-
-
-    url = f"https://members.brsgolf.com/belvoir/bookings/store/1/{date}/{time}"
-
-    payload = {f'member_booking_form[token]': {tokens[0]},
-    'member_booking_form[holes]': '18',
-    f'member_booking_form[player_1]': {player_1},
-    f'member_booking_form[player_2]': {player_2},
-    'member_booking_form[guest-rate-2]': '',
-    f'member_booking_form[player_3]': {player_3},
-    'member_booking_form[guest-rate-3]': '',
-    f'member_booking_form[player_4]': {player_4},
-    'member_booking_form[guest-rate-4]': '',
-    'member_booking_form[vendor-tx-code]': '',
-    f'member_booking_form[_token]': {tokens[1]}}
     
-    files=[
+    i = 0
+    status_code = 0
 
-    ]
+    # Tries to book initial time slot (href), if it fails, it then tries the 2nd, and so on.
+    # hrefs array can only be max length of three, so it will only try three times at most.
+    while status_code != 200 and i < len(hrefs):
+        split_date_time = hrefs[i].split('/')
+        time = split_date_time[-1]
+        date = split_date_time[-2]
 
-    response = session.post(url, data=payload, files=files)
+        url = f"https://members.brsgolf.com/belvoir/bookings/store/1/{date}/{time}"
 
-    # print(payload)
-    # print(response.status_code)
-    # print(response.text)
+        payload = {
+            f'member_booking_form[token]': {tokens[i][0]},
+            'member_booking_form[holes]': '18',
+            f'member_booking_form[player_1]': {player_1},
+            f'member_booking_form[player_2]': {player_2},
+            'member_booking_form[guest-rate-2]': '',
+            f'member_booking_form[player_3]': {player_3},
+            'member_booking_form[guest-rate-3]': '',
+            f'member_booking_form[player_4]': {player_4},
+            'member_booking_form[guest-rate-4]': '',
+            'member_booking_form[vendor-tx-code]': '',
+            f'member_booking_form[_token]': {tokens[i][1]}
+        }
 
+        # For whatever reason, a successful request requires an empty files array
+        files=[]
+
+        response = session.post(url, data=payload, files=files)
+
+        i += 1
+        status_code = response.status_code
     
-
+        return response
+    
 
 if __name__ == "__main__":
 
     session = requests.Session()
-    tee_time_preferences = ["07:00", "12:50", "15:10"]#
+    tee_time_preferences = ["12:50"]
     tee_time_date = '2023/07/20'
 
     # player variables
@@ -239,4 +258,4 @@ if __name__ == "__main__":
     dynamic_html = getDynamicHTML(tee_time_date)
     available_tee_times_hrefs = hrefParser(dynamic_html, tee_time_preferences)
     booking_tokens = bookingSlotTokens(available_tee_times_hrefs)
-    bookTeeTime(available_tee_times_hrefs, booking_tokens, player_1)
+    response = bookTeeTime(available_tee_times_hrefs, booking_tokens, player_1)
