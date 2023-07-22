@@ -1,7 +1,17 @@
 import logging
 import requests
+from datetime import datetime
 from bs4 import BeautifulSoup
 from selenium import webdriver
+
+logging.basicConfig(
+    level=logging.INFO,
+    format="%(asctime)s - %(levelname)s - %(message)s",
+    handlers=[
+        logging.StreamHandler(),
+        logging.FileHandler("logfile.log")
+    ]
+)
 
 
 # getPHPSessionID(), getOtherCookies(), getCSRFToken() are separately accessed to
@@ -220,6 +230,12 @@ def bookTeeTime(session, hrefs, tokens, player_1, player_2="", player_3="", play
     status_code = 0
     response = None
 
+    #TEST
+    logging.info("Reaching bookTeeTime while loop...")
+    print("hrefs array length = " + str(len(hrefs)))
+    print('status_code = ' + str(status_code))
+
+
     # Tries to book initial time slot (href), if it fails, it then tries the 2nd, and so on.
     # hrefs array can only be max length of three, so it will only try three times at most.
     while status_code != 200 and i < len(hrefs):
@@ -248,6 +264,8 @@ def bookTeeTime(session, hrefs, tokens, player_1, player_2="", player_3="", play
 
         try:
 
+            logging.info("Sending POST request for %s", url)
+
             response = session.post(url, data=payload, files=files)
 
             i += 1
@@ -265,6 +283,8 @@ def bookTeeTime(session, hrefs, tokens, player_1, player_2="", player_3="", play
     
 
 if __name__ == "__main__":
+
+    logging.info("Script started at: %s", datetime.now())
 
     session = requests.Session()
 
