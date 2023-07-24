@@ -6,11 +6,6 @@ from datetime import datetime
 from bs4 import BeautifulSoup
 from selenium import webdriver
 
-# Use environment vars to protect secrets
-load_dotenv()
-username = os.environ['BRS_USERNAME']
-password = os.environ['BRS_PASSWORD']
-
 # Set logging to gauge when program should be scheduled to start
 logging.basicConfig(
     level=logging.INFO,
@@ -287,27 +282,31 @@ if __name__ == "__main__":
 
     logging.info("Script started at: %s", datetime.now())
 
+    # Use environment vars to protect secrets
+    load_dotenv()
+    username = os.environ['BRS_USERNAME']
+    password = os.environ['BRS_PASSWORD']
+    player_1 = os.environ['PLAYER_1']
+    player_2 = os.environ['PLAYER_2']
+    player_3 = os.environ['PLAYER_3']
+    player_4 = os.environ['PLAYER_4']
+
     session = requests.Session()
 
     # URLs
-    belvoir_url = 'https://brsgolf.com/belvoir'
-    belvoir_members_url = 'https://members.brsgolf.com/'
-    belvoir_login_url = 'https://members.brsgolf.com/belvoir/login'
+    club_brs_url = 'https://brsgolf.com/belvoir'
+    club_members_brs_url = 'https://members.brsgolf.com/'
+    club_login_brs_url = 'https://members.brsgolf.com/belvoir/login'
 
     # Prefs
     tee_time_preferences = ["12:50", "13:00", "20:00"]
     tee_time_date = '2023/07/24'
 
-    # Player variables
-    niall = '3072'
-    ed = '3719'
-    dave = '3291'
-
-    getPHPSessionID(session, belvoir_url)
-    getOtherCookies(session, belvoir_members_url)
-    csrf_token = getCSRFToken(session, belvoir_login_url)
+    getPHPSessionID(session, club_brs_url)
+    getOtherCookies(session, club_members_brs_url)
+    csrf_token = getCSRFToken(session, club_login_brs_url)
     getTimeSheet(session, csrf_token)
     dynamic_html = getDynamicHTML(tee_time_date)
     available_tee_times_hrefs = hrefParser(dynamic_html, tee_time_preferences)
     booking_tokens = bookingSlotTokens(session, available_tee_times_hrefs)
-    response = bookTeeTime(session, available_tee_times_hrefs, booking_tokens, niall)
+    response = bookTeeTime(session, available_tee_times_hrefs, booking_tokens, player_1)
