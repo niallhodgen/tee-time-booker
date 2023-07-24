@@ -16,16 +16,16 @@ Terraform has been employed to create an AWS Lambda function that will run at de
 This script is supplied the following key variables:
 
 ### URLs
-
-*club_brs_url = 'https://brsgolf.com/belvoir'
+*club_brs_url = 'https://brsgolf.com/{club_name}'
 *club_members_brs_url = 'https://members.brsgolf.com/'
-*club_login_brs_url = 'https://members.brsgolf.com/belvoir/login'
+*club_login_brs_url = 'https://members.brsgolf.com/{club_name}/login'
 
-### Prefs
-*tee_time_preferences = ["12:50", "13:00", "20:00"]
-*tee_time_date = '2023/07/24'
+### Tee time preferences
+*tee_time_preferences
+*tee_time_date
 
-# Player variables
-niall = '3072'
-ed = '3719'
-dave = '3291'
+### Player variables (BRS golfer ID)
+*player_1
+*player_2
+*player_3
+*player_4
