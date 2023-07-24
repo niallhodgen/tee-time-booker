@@ -54,7 +54,7 @@ def getCSRFToken(session, url):
 def getTimeSheet(session, csrf_token):
 
     # Perform the login and obtain the necessary authentication token or cookies
-    login_url = 'https://members.brsgolf.com/belvoir/login'
+    login_url = f'https://members.brsgolf.com/{club_name}/login'
 
     payload = {
         'login_form[username]': username,
@@ -66,7 +66,7 @@ def getTimeSheet(session, csrf_token):
     headers = {
     'authority': 'members.brsgolf.com:',
     'method': 'POST',
-    'path': '/belvoir/login',
+    'path': f'/{club_name}/login',
     'scheme': 'https',
     'accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.7',
     'accept-encoding': 'gzip, deflate, br',
@@ -74,7 +74,7 @@ def getTimeSheet(session, csrf_token):
     'cache-control': 'max-age=0',
     'content-type': 'application/x-www-form-urlencoded',
     'origin': 'https://members.brsgolf.com',
-    'referer': 'https://members.brsgolf.com/belvoir/login'
+    'referer': f'https://members.brsgolf.com/{club_name}/login'
     }
 
     try:
@@ -102,7 +102,7 @@ def getTimeSheet(session, csrf_token):
 # The key value needed is a href for each booking slot that contains a dynamically generated token
 def getDynamicHTML(date):
 
-    url = f'https://members.brsgolf.com/belvoir/tee-sheet/1/{date}'
+    url = f'https://members.brsgolf.com/{club_name}/tee-sheet/1/{date}'
 
     # Create a new Chrome browser instance using Selenium
     driver = webdriver.Chrome()
@@ -239,7 +239,7 @@ def bookTeeTime(session, hrefs, tokens, player_1, player_2="", player_3="", play
         time = split_date_time[-1]
         date = split_date_time[-2]
 
-        url = f"https://members.brsgolf.com/belvoir/bookings/store/1/{date}/{time}"
+        url = f"https://members.brsgolf.com/{club_name}/bookings/store/1/{date}/{time}"
 
         payload = {
             f'member_booking_form[token]': {tokens[i][0]},
@@ -290,13 +290,14 @@ if __name__ == "__main__":
     player_2 = os.environ['PLAYER_2']
     player_3 = os.environ['PLAYER_3']
     player_4 = os.environ['PLAYER_4']
+    club_name = os.environ['CLUB_NAME']
 
     session = requests.Session()
 
     # URLs
-    club_brs_url = 'https://brsgolf.com/belvoir'
-    club_members_brs_url = 'https://members.brsgolf.com/'
-    club_login_brs_url = 'https://members.brsgolf.com/belvoir/login'
+    club_brs_url = f'https://brsgolf.com/{club_name}'
+    club_members_brs_url = f'https://members.brsgolf.com/'
+    club_login_brs_url = f'https://members.brsgolf.com/{club_name}/login'
 
     # Prefs
     tee_time_preferences = ["12:50", "13:00", "20:00"]
