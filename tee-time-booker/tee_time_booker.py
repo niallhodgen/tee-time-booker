@@ -1,9 +1,17 @@
 import logging
+import os
+from dotenv import load_dotenv
 import requests
 from datetime import datetime
 from bs4 import BeautifulSoup
 from selenium import webdriver
 
+# Use environment vars to protect secrets
+load_dotenv()
+username = os.environ['BRS_USERNAME']
+password = os.environ['BRS_PASSWORD']
+
+# Set logging to gauge when program should be scheduled to start
 logging.basicConfig(
     level=logging.INFO,
     format="%(asctime)s - %(levelname)s - %(message)s",
@@ -49,10 +57,6 @@ def getCSRFToken(session, url):
 
 
 def getTimeSheet(session, csrf_token):
-
-    # Replace 'YOUR_USERNAME'and 'YOUR_PASSWORD'with your actual login credentials
-    username = '10773134'
-    password = '20Diesel08'
 
     # Perform the login and obtain the necessary authentication token or cookies
     login_url = 'https://members.brsgolf.com/belvoir/login'
@@ -230,10 +234,7 @@ def bookTeeTime(session, hrefs, tokens, player_1, player_2="", player_3="", play
     status_code = 0
     response = None
 
-    #TEST
     logging.info("Reaching bookTeeTime while loop...")
-    print("hrefs array length = " + str(len(hrefs)))
-    print('status_code = ' + str(status_code))
 
 
     # Tries to book initial time slot (href), if it fails, it then tries the 2nd, and so on.
@@ -294,7 +295,7 @@ if __name__ == "__main__":
     belvoir_login_url = 'https://members.brsgolf.com/belvoir/login'
 
     # Prefs
-    tee_time_preferences = ["12:50", "13:00", "19:30"]
+    tee_time_preferences = ["12:50", "13:00", "20:00"]
     tee_time_date = '2023/07/24'
 
     # Player variables
