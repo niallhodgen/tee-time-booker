@@ -1,0 +1,17 @@
+# Ignore Python cache files
+__pycache__/
+
+# Ignore log files
+*.log
+
+# Ignore environment-specific files
+.env
+.env.*
+*.tfvars
+.terraform*
+terraform.tfstate*
+terraform.*
+
+# Ignore misc files
+locals.tf
+lambda_main.zip
