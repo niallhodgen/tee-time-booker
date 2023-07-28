@@ -33,7 +33,7 @@ resource "aws_iam_role" "lambda_exec" {
 }
 
 resource "aws_iam_role_policy_attachment" "lambda_exec" {
-  policy_arn = "arn:aws:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole"
+  policy_arn = "arn:aws:iam::aws:policy/AWSLambda_FullAccess"
   role       = aws_iam_role.lambda_exec.name
 }
 
@@ -49,7 +49,7 @@ resource "aws_cloudwatch_event_rule" "schedule_rule_1" {
 resource "aws_cloudwatch_event_rule" "schedule_rule_2" {
   name                = "brs_booking_schedule_rule"
   description         = "Schedule rule for the BRS Booking Lambda function"
-  schedule_expression = "cron(35 12 28 JUL ? 2023)"
+  schedule_expression = "cron(52 12 28 JUL ? 2023)"
 
   tags = local.tags
 }

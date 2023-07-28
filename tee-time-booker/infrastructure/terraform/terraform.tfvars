@@ -1,5 +1,5 @@
-AWS_ACCESS_KEY = "AKIA2R6YMKPAVKK5MFWG"
-AWS_SECRET_KEY = "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"
+AWS_ACCESS_KEY = "AKIA2R6YMKPA3WWTMBFI"
+AWS_SECRET_KEY = "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"
 environment    = "prod"
 region         = "US East (N. Virginia)"
 short_region   = "us-east-1"
