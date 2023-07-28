@@ -1,22 +1,11 @@
-import logging
 import os
 #import requests
-from botocore.vendored import requests
+import botocore.vendored.requests as requests
 from datetime import datetime, timedelta
 import time
 from bs4 import BeautifulSoup
 from selenium import webdriver
 #from dotenv import load_dotenv
-
-# Set logging to gauge when program should be scheduled to start
-logging.basicConfig(
-    level=logging.INFO,
-    format="%(asctime)s - %(levelname)s - %(message)s",
-    handlers=[
-        logging.StreamHandler(),
-        logging.FileHandler("logfile.log")
-    ]
-)
 
 # getPHPSessionID(), getOtherCookies(), getCSRFToken() are separately accessed to
 # store the necessary cookies for login from the various BRS Golf domains
@@ -101,7 +90,7 @@ def getTimeSheet(session, csrf_token, username, password, club_name):
 # properly; hence, it was a last resort.
 #
 # The key value needed is a href for each booking slot that contains a dynamically generated token
-def getDynamicHTML(date):
+def getDynamicHTML(session, date, club_name):
 
     url = f'https://members.brsgolf.com/{club_name}/tee-sheet/1/{date}'
 
@@ -217,21 +206,15 @@ def bookingSlotTokens(session, available_tee_times_hrefs):
         
         except requests.exceptions.RequestException as e:
             print(f"An error occurred while fetching tokens for {url}: {e}")
-
-    # Optionally, you may want to log the extracted tokens
-    logging.info("Tokens array: %s", tokens_array)
     
     return tokens_array
 
 
-def bookTeeTime(session, hrefs, tokens, player_1, player_2="", player_3="", player_4=""):
+def bookTeeTime(session, club_name, hrefs, tokens, player_1, player_2="", player_3="", player_4=""):
     
     i = 0
     status_code = 0
     response = None
-
-    logging.info("Reaching bookTeeTime while loop...")
-
 
     # Tries to book initial time slot (href), if it fails, it then tries the 2nd, and so on.
     # hrefs array can only be max length of three, so it will only try three times at most.
@@ -261,8 +244,6 @@ def bookTeeTime(session, hrefs, tokens, player_1, player_2="", player_3="", play
 
         try:
 
-            logging.info("Sending POST request for %s", url)
-
             response = session.post(url, data=payload, files=files)
 
             i += 1
@@ -282,8 +263,6 @@ def bookTeeTime(session, hrefs, tokens, player_1, player_2="", player_3="", play
 def lambda_handler(event, context):
 
     time.sleep(48)
-    
-    logging.info("Script started at: %s", datetime.now())
 
     today = datetime.now().date()
     # Add 7 days to today's date
@@ -312,7 +291,7 @@ def lambda_handler(event, context):
     getOtherCookies(session, club_members_brs_url)
     csrf_token = getCSRFToken(session, club_login_brs_url)
     getTimeSheet(session, csrf_token, username, password, club_name)
-    dynamic_html = getDynamicHTML(tee_time_date)
+    dynamic_html = getDynamicHTML(session, tee_time_date, club_name)
     available_tee_times_hrefs = hrefParser(dynamic_html, tee_time_preferences)
     booking_tokens = bookingSlotTokens(session, available_tee_times_hrefs)
-    response = bookTeeTime(session, available_tee_times_hrefs, booking_tokens, player_1, player_2, player_3)
+    response = bookTeeTime(session, club_name, available_tee_times_hrefs, booking_tokens, player_1, player_2, player_3)
