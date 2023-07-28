@@ -1,6 +1,7 @@
 import logging
 import os
-import requests
+#import requests
+from botocore.vendored import requests
 from datetime import datetime, timedelta
 import time
 from bs4 import BeautifulSoup

@@ -49,7 +49,7 @@ resource "aws_cloudwatch_event_rule" "schedule_rule_1" {
 resource "aws_cloudwatch_event_rule" "schedule_rule_2" {
   name                = "brs_booking_schedule_rule"
   description         = "Schedule rule for the BRS Booking Lambda function"
-  schedule_expression = "cron(52 12 28 JUL ? 2023)"
+  schedule_expression = "cron(25 13 28 JUL ? 2023)"
 
   tags = local.tags
 }
