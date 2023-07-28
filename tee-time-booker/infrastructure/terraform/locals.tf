@@ -1,6 +1,6 @@
 locals {
   lambda_event_payload = {
-    "2023/08/02"   = "12:50,07:00,19:30",
+    "D2023_08_02"   = "12:50,07:00,19:30",
     "BRS_USERNAME" = "10773134",
     "BRS_PASSWORD" = "20Diesel08",
     "PLAYER_1"     = "3072", #Niall

@@ -286,8 +286,12 @@ def lambda_handler(event, context):
 
     today = datetime.now().date()
     # Add 7 days to today's date
-    tee_time_date = today + timedelta(days=7)
-    tee_time_preferences = os.environ.get(tee_time_date, "").split(",")
+    tee_time_date = str(today + timedelta(days=7))
+    formatted_date = "D" + tee_time_date.replace('-', '_') #Formatted to match AWS lambda env var key name restrictions
+    tee_time_date = tee_time_date.strftime("%Y/%m/%d")
+    tee_time_preferences = os.environ.get(formatted_date, "")
+    tee_time_preferences = tee_time_preferences.replace("-",":")
+    tee_time_preferences = tee_time_preferences.split(",")
     username = os.environ['BRS_USERNAME']
     password = os.environ['BRS_PASSWORD']
     player_1 = os.environ['PLAYER_1']
